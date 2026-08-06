@@ -1,8 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -11,22 +8,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Filter, Plus, ArrowUpDown, Pencil, Trash2, Download, MoreHorizontal, Eye, Loader2 } from "lucide-react";
+import { ArrowUpDown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { statusColors } from "@/app/constants/customer";
 import { useState } from "react";
 import CustomerModal from "./CustomerModel";
 import AddCustomerForm from "./addCustomerForm";
 import { useGetCustomers } from "@/app/hooks/useCustomers";
 import { Customer } from "@/app/types"; 
 import FilterPanel, { FilterCriteria } from "../filters/FilterPanel";
+
+import CustomerTableToolbar from "./CustomerTableToolbar";
+import CustomerTableRow from "./CustomerTableRow";
+import CustomerTablePagination from "./CustomerTablePagination";
+
+const ITEMS_PER_PAGE = 10;
 
 const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: boolean } = {}) => {
   const [panelOpen, setPanelOpen] = useState(false);
@@ -36,6 +31,9 @@ const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: b
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilters, setActiveFilters] = useState<FilterCriteria | null>(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data: customers = [], isLoading, isError } = useGetCustomers();
 
@@ -68,11 +66,15 @@ const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: b
     return true;
   });
 
-  const displayedCustomers = limit ? filteredCustomers.slice(0, limit) : filteredCustomers;
-
-  const handleOpenModal = (mode: "view" | "edit" | "delete", customer: Customer) => {
-    setSelectedCustomer(customer);
-    setModalMode(mode);
+  // Reset page when filters change
+  const handleApplyFilters = (filters: FilterCriteria) => {
+    setActiveFilters(filters);
+    setCurrentPage(1);
+  };
+  
+  const handleSearchQueryChange = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
   };
 
   const activeFilterCount = activeFilters ? 
@@ -82,42 +84,33 @@ const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: b
     (activeFilters.email ? 1 : 0) +
     (activeFilters.dateFrom || activeFilters.dateTo ? 1 : 0) : 0;
 
+  // Pagination logic
+  const totalItems = filteredCustomers.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
+  
+  // If limit is provided, use limit instead of pagination (e.g. for dashboard widget)
+  const displayedCustomers = limit 
+    ? filteredCustomers.slice(0, limit) 
+    : filteredCustomers.slice(startIndex, endIndex);
+
+  const handleOpenModal = (mode: "view" | "edit" | "delete", customer: Customer) => {
+    setSelectedCustomer(customer);
+    setModalMode(mode);
+  };
+
   return (
     <div className="space-y-4">
       {!hideFilters && (
-        <>
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold">Customers</h1>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Download size={16} className="mr-2" />
-                Export CSV
-              </Button>
-              <Button size="sm" onClick={() => setIsAddFormOpen(true)}>
-                <Plus size={16} className="mr-2" />
-                Add Customer
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Input
-              placeholder="Search by name, email or company..."
-              className="max-w-sm"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <Button variant="outline" size="sm" onClick={() => setPanelOpen(true)} className="relative">
-              <Filter size={16} className="mr-2" />
-              Filters
-              {activeFilterCount > 0 && (
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 rounded-full">
-                  {activeFilterCount}
-                </Badge>
-              )}
-            </Button>
-          </div>
-        </>
+        <CustomerTableToolbar
+          searchQuery={searchQuery}
+          setSearchQuery={handleSearchQueryChange}
+          activeFilterCount={activeFilterCount}
+          onOpenFilterPanel={() => setPanelOpen(true)}
+          onAddCustomer={() => setIsAddFormOpen(true)}
+          displayedCustomers={filteredCustomers} // Export all matched, not just paginated
+        />
       )}
 
       <div className={cn("overflow-y-auto w-full", !hideFilters ? "rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] max-h-[calc(100vh-260px)]" : "")}>
@@ -146,7 +139,6 @@ const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: b
             </TableRow>
           </TableHeader>
           <TableBody>
-           
             {isLoading && (
               <TableRow>
                 <TableCell colSpan={7} className="h-32 text-center">
@@ -158,7 +150,6 @@ const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: b
               </TableRow>
             )}
 
-           
             {isError && (
               <TableRow>
                 <TableCell colSpan={7} className="h-32 text-center text-red-500">
@@ -175,78 +166,36 @@ const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: b
               </TableRow>
             )}
 
-      
             {!isLoading && !isError && displayedCustomers.map((customer) => (
-              <TableRow
+              <CustomerTableRow
                 key={customer.id}
-                className="cursor-pointer border-b border-white/5 transition-all hover:bg-white/5 data-[state=selected]:bg-white/5 group"
-                onClick={() => handleOpenModal("view", customer)}
-              >
-                <TableCell className="font-medium py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary text-sm font-bold shrink-0 shadow-inner ring-1 ring-primary/20 group-hover:scale-105 transition-transform">
-                      {customer.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-                    </div>
-                    {customer.name}
-                  </div>
-                </TableCell>
-                <TableCell className="text-muted-foreground">{customer.email}</TableCell>
-                <TableCell className="text-muted-foreground">{customer.phone}</TableCell>
-                <TableCell>{customer.company}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "px-2.5 py-0.5 rounded-full text-xs font-semibold ring-1 ring-inset border-0 shadow-sm backdrop-blur-sm",
-                      statusColors[customer.status]
-                    )}
-                  >
-                    {customer.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-muted-foreground">{customer.lastContactDate}</TableCell>
-                <TableCell className="text-right">
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0 border-0 bg-transparent cursor-pointer">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleOpenModal("view", customer)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          <span>Show</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleOpenModal("edit", customer)}>
-                          <Pencil className="mr-2 h-4 w-4" />
-                          <span>Edit</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => handleOpenModal("delete", customer)}
-                          className="text-red-600 focus:text-red-600 focus:bg-red-50"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          <span>Delete</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </TableCell>
-              </TableRow>
+                customer={customer}
+                onOpenModal={handleOpenModal}
+              />
             ))}
           </TableBody>
         </Table>
       </div>
+
+      {!hideFilters && !isLoading && !isError && (
+        <CustomerTablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={totalItems}
+          startIndex={startIndex}
+          endIndex={endIndex}
+        />
+      )}
+
       <FilterPanel 
         open={panelOpen} 
         onClose={() => setPanelOpen(false)} 
         companies={companies}
         initialFilters={activeFilters || undefined}
-        onApply={(filters) => setActiveFilters(filters)}
+        onApply={handleApplyFilters}
       />
 
-     
       <CustomerModal
         open={!!modalMode}
         mode={modalMode || "view"}

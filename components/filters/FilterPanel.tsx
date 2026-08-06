@@ -1,9 +1,5 @@
-"use client";
 import { useState, useEffect } from "react";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
@@ -11,13 +7,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { X, Star, ChevronDown } from "lucide-react";
+import { X } from "lucide-react";
+import { StatusFilter } from "./StatusFilter";
+import { CompanyFilter } from "./CompanyFilter";
+import { DateRangeFilter } from "./DateRangeFilter";
+import { TextFilter } from "./TextFilter";
+import { SaveFilterForm } from "./SaveFilterForm";
+import { SavedFiltersList, SavedFilter } from "./SavedFiltersList";
 
 export type FilterCriteria = {
   statuses: string[];
@@ -28,7 +24,6 @@ export type FilterCriteria = {
   email: string;
 };
 
-const STATUSES = ["Active", "Inactive", "Prospect", "Archive"];
 export default function FilterPanel({
   open,
   onClose,
@@ -50,9 +45,17 @@ export default function FilterPanel({
   const [email, setEmail] = useState("");
   const [saveFilterName, setSaveFilterName] = useState("");
 
-  const [savedFilters, setSavedFilters] = useState<{ name: string, criteria: FilterCriteria }[]>([
-    { name: "Active Customers", criteria: { statuses: ["Active"], companies: [], dateFrom: "", dateTo: "", phone: "", email: "" } },
-    { name: "Recent Contacts", criteria: { statuses: [], companies: [], dateFrom: "2024-01-01", dateTo: "", phone: "", email: "" } }
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([
+    {
+      id: "active-customers",
+      name: "Active Customers",
+      criteria: { statuses: ["Active"], companies: [], dateFrom: "", dateTo: "", phone: "", email: "" },
+    },
+    {
+      id: "recent-contacts",
+      name: "Recent Contacts",
+      criteria: { statuses: [], companies: [], dateFrom: "2024-01-01", dateTo: "", phone: "", email: "" },
+    },
   ]);
 
   useEffect(() => {
@@ -117,7 +120,14 @@ export default function FilterPanel({
       phone,
       email,
     };
-    setSavedFilters(prev => [...prev, { name: saveFilterName.trim(), criteria: currentCriteria }]);
+    setSavedFilters((prev) => [
+      ...prev,
+      {
+        id: saveFilterName.trim().toLowerCase().replace(/\s+/g, "-") + "-" + Date.now(),
+        name: saveFilterName.trim(),
+        criteria: currentCriteria,
+      },
+    ]);
     setSaveFilterName("");
   };
 
@@ -130,9 +140,9 @@ export default function FilterPanel({
     setEmail(criteria.email || "");
   };
 
-  const deleteSavedFilter = (name: string, e: React.MouseEvent) => {
+  const deleteSavedFilter = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSavedFilters(prev => prev.filter(f => f.name !== name));
+    setSavedFilters((prev) => prev.filter((f) => f.id !== id));
   };
 
   return (
@@ -148,130 +158,25 @@ export default function FilterPanel({
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Status</h3>
-              <button
-                onClick={() => setStatuses([])}
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                Clear
-              </button>
-            </div>
-            <div className="space-y-2">
-              {STATUSES.map((status) => (
-                <div key={status} className="flex items-center gap-2">
-                  <Checkbox
-                    id={status}
-                    checked={statuses.includes(status)}
-                    onCheckedChange={() => toggleStatus(status)}
-                  />
-                  <label htmlFor={status} className="text-sm cursor-pointer">
-                    {status}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-
+          <StatusFilter statuses={statuses} toggleStatus={toggleStatus} onClear={() => setStatuses([])} />
           <Separator />
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Company</h3>
-              <button
-                onClick={() => setSelectedCompanies([])}
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                Clear
-              </button>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger className={cn(buttonVariants({ variant: "outline" }), "w-full justify-between text-sm font-normal")}>
-                {selectedCompanies.length > 0 ? `${selectedCompanies.length} selected` : "Select companies..."}
-                <ChevronDown className="h-4 w-4 opacity-50" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-72 max-h-60 overflow-y-auto">
-                {companies.map((company) => (
-                  <DropdownMenuCheckboxItem
-                    key={company}
-                    checked={selectedCompanies.includes(company)}
-                    onCheckedChange={() => toggleCompany(company)}
-                  >
-                    {company}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
+          
+          <CompanyFilter companies={companies} selectedCompanies={selectedCompanies} toggleCompany={toggleCompany} onClear={() => setSelectedCompanies([])} />
           <Separator />
-
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold">Date Range (Last Contact)</h3>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">From</label>
-                <Input type="date" className="text-sm" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">To</label>
-                <Input type="date" className="text-sm" value={dateTo} onChange={e => setDateTo(e.target.value)} />
-              </div>
-            </div>
-          </div>
-
+          
+          <DateRangeFilter dateFrom={dateFrom} setDateFrom={setDateFrom} dateTo={dateTo} setDateTo={setDateTo} />
           <Separator />
-
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold">Phone Number</h3>
-            <Input placeholder="e.g. (555) 123-4567" className="text-sm" value={phone} onChange={e => setPhone(e.target.value)} />
-          </div>
-
+          
+          <TextFilter title="Phone Number" placeholder="e.g. (555) 123-4567" value={phone} onChange={setPhone} />
           <Separator />
-
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold">Email Contains</h3>
-            <Input placeholder="e.g. @gmail.com" className="text-sm" value={email} onChange={e => setEmail(e.target.value)} />
-          </div>
-
+          
+          <TextFilter title="Email Contains" placeholder="e.g. @gmail.com" value={email} onChange={setEmail} />
           <Separator />
-
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold">Save Current Filter</h3>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Filter name..."
-                className="text-sm"
-                value={saveFilterName}
-                onChange={(e) => setSaveFilterName(e.target.value)}
-              />
-              <Button size="sm" variant="outline" onClick={handleSaveFilter}>Save</Button>
-            </div>
-          </div>
-
+          
+          <SaveFilterForm saveFilterName={saveFilterName} setSaveFilterName={setSaveFilterName} onSave={handleSaveFilter} />
           <Separator />
-
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold">Saved Filters</h3>
-            <div className="space-y-2">
-              {savedFilters.length === 0 && <p className="text-sm text-muted-foreground">No saved filters yet.</p>}
-              {savedFilters.map((filter) => (
-                <div
-                  key={filter.name}
-                  onClick={() => applySavedFilter(filter.criteria)}
-                  className="flex items-center justify-between px-3 py-2 rounded-md border hover:bg-muted cursor-pointer group transition-colors"
-                >
-                  <span className="text-sm font-medium">{filter.name}</span>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-red-500" onClick={(e) => deleteSavedFilter(filter.name, e)}>
-                      <X size={13} />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          
+          <SavedFiltersList savedFilters={savedFilters} setSavedFilters={setSavedFilters} applySavedFilter={applySavedFilter} deleteSavedFilter={deleteSavedFilter} />
         </div>
 
         <div className="px-5 py-4 border-t flex gap-2">

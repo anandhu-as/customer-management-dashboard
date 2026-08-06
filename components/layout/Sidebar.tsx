@@ -9,7 +9,7 @@ const navItems = [
   { label: "Customers", href: "/customers", icon: Users },
 ];
 
- const Sidebar=()=> {
+const Sidebar = () => {
   const pathname = usePathname();
 
   return (
@@ -19,7 +19,7 @@ const navItems = [
         <span className="text-xl font-bold tracking-tight">CRM</span>
       </div>
 
-  
+
       <nav className="flex-1 px-3 py-4 space-y-1">
         {navItems.map(({ label, href, icon: Icon }) => (
           <Link
@@ -38,7 +38,7 @@ const navItems = [
         ))}
       </nav>
 
-   
+
       <div className="px-4 py-4 border-t">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">
