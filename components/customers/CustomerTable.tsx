@@ -21,12 +21,12 @@ import {
 import { Filter, Plus, ArrowUpDown, Pencil, Trash2, Download, MoreHorizontal, Eye, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { statusColors } from "@/app/constants/customer";
-import FilterPanel from "../filters/FilterPanel";
 import { useState } from "react";
 import CustomerModal from "./CustomerModel";
 import AddCustomerForm from "./addCustomerForm";
 import { useGetCustomers } from "@/app/hooks/useCustomers";
 import { Customer } from "@/app/types"; 
+import FilterPanel, { FilterCriteria } from "../filters/FilterPanel";
 
 const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: boolean } = {}) => {
   const [panelOpen, setPanelOpen] = useState(false);
@@ -34,15 +34,53 @@ const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: b
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
 
- //from hook
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilters, setActiveFilters] = useState<FilterCriteria | null>(null);
+
   const { data: customers = [], isLoading, isError } = useGetCustomers();
 
-  const displayedCustomers = limit ? customers.slice(0, limit) : customers;
+  const companies = Array.from(new Set(customers.map(c => c.company))).filter(Boolean);
+
+  const filteredCustomers = customers.filter(customer => {
+    // 1. Search Query
+    const matchesSearch = 
+      customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.company.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (!matchesSearch) return false;
+
+    // 2. Advanced Filters
+    if (activeFilters) {
+      if (activeFilters.statuses.length > 0 && !activeFilters.statuses.includes(customer.status)) return false;
+      if (activeFilters.companies.length > 0 && !activeFilters.companies.includes(customer.company)) return false;
+      if (activeFilters.phone && !customer.phone.includes(activeFilters.phone)) return false;
+      if (activeFilters.email && !customer.email.toLowerCase().includes(activeFilters.email.toLowerCase())) return false;
+      
+      if (activeFilters.dateFrom && customer.lastContactDate) {
+        if (new Date(customer.lastContactDate) < new Date(activeFilters.dateFrom)) return false;
+      }
+      if (activeFilters.dateTo && customer.lastContactDate) {
+        if (new Date(customer.lastContactDate) > new Date(activeFilters.dateTo)) return false;
+      }
+    }
+
+    return true;
+  });
+
+  const displayedCustomers = limit ? filteredCustomers.slice(0, limit) : filteredCustomers;
 
   const handleOpenModal = (mode: "view" | "edit" | "delete", customer: Customer) => {
     setSelectedCustomer(customer);
     setModalMode(mode);
   };
+
+  const activeFilterCount = activeFilters ? 
+    (activeFilters.statuses.length > 0 ? 1 : 0) +
+    (activeFilters.companies.length > 0 ? 1 : 0) +
+    (activeFilters.phone ? 1 : 0) +
+    (activeFilters.email ? 1 : 0) +
+    (activeFilters.dateFrom || activeFilters.dateTo ? 1 : 0) : 0;
 
   return (
     <div className="space-y-4">
@@ -66,13 +104,17 @@ const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: b
             <Input
               placeholder="Search by name, email or company..."
               className="max-w-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
             <Button variant="outline" size="sm" onClick={() => setPanelOpen(true)} className="relative">
               <Filter size={16} className="mr-2" />
               Filters
-              <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 rounded-full">
-                3
-              </Badge>
+              {activeFilterCount > 0 && (
+                <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 rounded-full">
+                  {activeFilterCount}
+                </Badge>
+              )}
             </Button>
           </div>
         </>
@@ -196,8 +238,13 @@ const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: b
           </TableBody>
         </Table>
       </div>
-
-      <FilterPanel open={panelOpen} onClose={() => setPanelOpen(false)} />
+      <FilterPanel 
+        open={panelOpen} 
+        onClose={() => setPanelOpen(false)} 
+        companies={companies}
+        initialFilters={activeFilters || undefined}
+        onApply={(filters) => setActiveFilters(filters)}
+      />
 
      
       <CustomerModal
