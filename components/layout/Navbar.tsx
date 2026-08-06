@@ -12,6 +12,7 @@ const Navbar = () => {
   const currentPathName = usePathname();
 
   //just to avoid  hydration mismatch
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setIsMounted(true), []);
 
   const routeName = currentPathName.split("/").pop() || "Home";

@@ -14,8 +14,11 @@ import { Filter, Plus, ArrowUpDown, Pencil, Trash2, Download } from "lucide-reac
 import { cn } from "@/lib/utils";
 import { dummyCustomers } from "@/lib/data";
 import { statusColors } from "@/app/constants/customer";
-
+import FilterPanel from "../filters/FilterPanel";
+import { useState } from "react";
+//for filterpanel
 const CustomerTable = () => {
+  const [panelOpen, setPanelOpen] = useState(false);
   return (
     <div className="space-y-4">
 
@@ -38,9 +41,12 @@ const CustomerTable = () => {
           placeholder="Search by name, email or company..."
           className="max-w-sm"
         />
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" onClick={() => setPanelOpen(true)} className="relative">
           <Filter size={16} className="mr-2" />
           Filters
+          <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 rounded-full">
+            3
+          </Badge>
         </Button>
       </div>
       <div className="rounded-md border">
@@ -133,7 +139,7 @@ const CustomerTable = () => {
           <Button variant="outline" size="sm" disabled>»</Button>
         </div>
       </div>
-
+      <FilterPanel open={panelOpen} onClose={() => setPanelOpen(false)} />
     </div>
   );
 }
