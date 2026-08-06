@@ -69,7 +69,7 @@ export default function FilterPanel({
 
           <Separator />
 
-    
+
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold">Company</h3>
@@ -78,11 +78,9 @@ export default function FilterPanel({
               </button>
             </div>
             <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Button variant="outline" className="w-full justify-between text-sm font-normal">
-                  Select companies...
-                  <ChevronDown className="h-4 w-4 opacity-50" />
-                </Button>
+              <DropdownMenuTrigger render={<Button variant="outline" className="w-full justify-between text-sm font-normal" />}>
+                Select companies...
+                <ChevronDown className="h-4 w-4 opacity-50" />
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-72">
                 {COMPANIES.map((company) => (
@@ -96,7 +94,7 @@ export default function FilterPanel({
 
           <Separator />
 
-        
+
           <div className="space-y-3">
             <h3 className="text-sm font-semibold">Date Range (Last Contact)</h3>
             <div className="grid grid-cols-2 gap-2">
@@ -113,7 +111,7 @@ export default function FilterPanel({
 
           <Separator />
 
-          
+
           <div className="space-y-3">
             <h3 className="text-sm font-semibold">Phone Number</h3>
             <Input placeholder="e.g. (555) 123-4567" className="text-sm" />
@@ -121,7 +119,7 @@ export default function FilterPanel({
 
           <Separator />
 
-        
+
           <div className="space-y-3">
             <h3 className="text-sm font-semibold">Email Contains</h3>
             <Input placeholder="e.g. @gmail.com" className="text-sm" />
