@@ -5,10 +5,11 @@ import { Customer } from "@/app/types";
 //keyy to identify catched data
 export const CUSTOMERS_QUERY_KEY = ["customers"];
 
-export const useGetCustomers = () => {
+export const useGetCustomers = (initialData?: Customer[]) => {
   return useQuery({
     queryKey: CUSTOMERS_QUERY_KEY,
     queryFn: fetchCustomers,
+    initialData,
   });
 };
 

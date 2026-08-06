@@ -1,44 +1,19 @@
-export default function Dashboard() {
-  const stats = [
-    { title: "Total Customers", value: 60 },
-    { title: "Active", value: 41 },
-    { title: "Leads", value: 9 },
-    { title: "Prospects", value: 2 },
-    { title: "Inactive", value: 6 },
-    { title: "Churned", value: 2 },
-  ];
+import { fetchCustomers } from "@/lib/api";
 
-  const customers = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Sarah Smith",
-      email: "sarah@example.com",
-      status: "Lead",
-    },
-    {
-      id: 3,
-      name: "Michael Lee",
-      email: "michael@example.com",
-      status: "Inactive",
-    },
-    {
-      id: 4,
-      name: "Emma Wilson",
-      email: "emma@example.com",
-      status: "Active",
-    },
+export default async function Dashboard() {
+  const customers = await fetchCustomers();
+
+  const stats = [
+    { title: "Total Customers", value: customers.length },
+    { title: "Active", value: customers.filter((c) => c.status === "Active").length },
+    { title: "Prospects", value: customers.filter((c) => c.status === "Prospect").length },
+    { title: "Inactive", value: customers.filter((c) => c.status === "Inactive").length },
+    { title: "Archive", value: customers.filter((c) => c.status === "Archive").length },
   ];
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <h1 className="mb-6 text-3xl font-bold">CRM Dashboard</h1>
-
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {stats.map((stat) => (

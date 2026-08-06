@@ -23,7 +23,7 @@ import CustomerTablePagination from "./CustomerTablePagination";
 
 const ITEMS_PER_PAGE = 10;
 
-const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: boolean } = {}) => {
+const CustomerTable = ({ limit, hideFilters, initialCustomers }: { limit?: number; hideFilters?: boolean; initialCustomers?: Customer[] } = {}) => {
   const [panelOpen, setPanelOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"view" | "edit" | "delete" | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -35,7 +35,7 @@ const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: b
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: customers = [], isLoading, isError } = useGetCustomers();
+  const { data: customers = [], isLoading, isError } = useGetCustomers(initialCustomers);
 
   const companies = Array.from(new Set(customers.map(c => c.company))).filter(Boolean);
 
