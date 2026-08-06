@@ -33,7 +33,7 @@ export default function FilterPanel({
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent className="w-80 overflow-y-auto flex flex-col gap-0 p-0" showCloseButton={false}>
 
-        {/* Header */}
+
         <SheetHeader className="px-5 py-4 border-b">
           <div className="flex items-center justify-between">
             <SheetTitle>Filters</SheetTitle>
@@ -45,7 +45,6 @@ export default function FilterPanel({
 
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6">
 
-          {/* Status Filter */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold">Status</h3>
@@ -70,7 +69,7 @@ export default function FilterPanel({
 
           <Separator />
 
-          {/* Company Filter */}
+    
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold">Company</h3>
@@ -79,13 +78,11 @@ export default function FilterPanel({
               </button>
             </div>
             <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button variant="outline" className="w-full justify-between text-sm font-normal" />
-                }
-              >
-                Select companies...
-                <ChevronDown className="h-4 w-4 opacity-50" />
+              <DropdownMenuTrigger>
+                <Button variant="outline" className="w-full justify-between text-sm font-normal">
+                  Select companies...
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-72">
                 {COMPANIES.map((company) => (
@@ -99,7 +96,7 @@ export default function FilterPanel({
 
           <Separator />
 
-          {/* Date Range Filter */}
+        
           <div className="space-y-3">
             <h3 className="text-sm font-semibold">Date Range (Last Contact)</h3>
             <div className="grid grid-cols-2 gap-2">
@@ -116,7 +113,7 @@ export default function FilterPanel({
 
           <Separator />
 
-          {/* Phone Filter */}
+          
           <div className="space-y-3">
             <h3 className="text-sm font-semibold">Phone Number</h3>
             <Input placeholder="e.g. (555) 123-4567" className="text-sm" />
@@ -124,7 +121,7 @@ export default function FilterPanel({
 
           <Separator />
 
-          {/* Email Filter */}
+        
           <div className="space-y-3">
             <h3 className="text-sm font-semibold">Email Contains</h3>
             <Input placeholder="e.g. @gmail.com" className="text-sm" />
@@ -132,7 +129,7 @@ export default function FilterPanel({
 
           <Separator />
 
-          {/* Save Filter */}
+
           <div className="space-y-3">
             <h3 className="text-sm font-semibold">Save Current Filter</h3>
             <div className="flex gap-2">
@@ -143,7 +140,7 @@ export default function FilterPanel({
 
           <Separator />
 
-          {/* Saved Filters */}
+
           <div className="space-y-3">
             <h3 className="text-sm font-semibold">Saved Filters</h3>
             <div className="space-y-2">
@@ -164,7 +161,6 @@ export default function FilterPanel({
 
         </div>
 
-        {/* Footer Buttons */}
         <div className="px-5 py-4 border-t flex gap-2">
           <Button variant="outline" className="flex-1">
             Clear All

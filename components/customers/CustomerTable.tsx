@@ -10,26 +10,40 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Filter, Plus, ArrowUpDown, Pencil, Trash2, Download } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Filter, Plus, ArrowUpDown, Pencil, Trash2, Download, MoreHorizontal, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { dummyCustomers } from "@/lib/data";
 import { statusColors } from "@/app/constants/customer";
 import FilterPanel from "../filters/FilterPanel";
 import { useState } from "react";
-//for filterpanel
-const CustomerTable = () => {
+import CustomerModal from "./CustomerModel";
+import AddCustomerForm from "./addCustomerForm";
+const CustomerTable = ({ limit, hideFilters }: { limit?: number; hideFilters?: boolean } = {}) => {
   const [panelOpen, setPanelOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"view" | "edit" | "delete" | null>(null);
+  const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+
+  const displayedCustomers = limit ? dummyCustomers.slice(0, limit) : dummyCustomers;
+
   return (
     <div className="space-y-4">
-
-      <div className="flex items-center justify-between">
+      {!hideFilters && (
+        <>
+          <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Customers</h1>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm">
             <Download size={16} className="mr-2" />
             Export CSV
           </Button>
-          <Button size="sm">
+          <Button size="sm" onClick={() => setIsAddFormOpen(true)}>
             <Plus size={16} className="mr-2" />
             Add Customer
           </Button>
@@ -49,10 +63,12 @@ const CustomerTable = () => {
           </Badge>
         </Button>
       </div>
-      <div className="rounded-md border">
+        </>
+      )}
+      <div className={cn("overflow-y-auto w-full", !hideFilters ? "rounded-2xl border border-white/5 bg-white/5 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] max-h-[calc(100vh-260px)]" : "")}>
         <Table>
-          <TableHeader>
-            <TableRow>
+          <TableHeader className="bg-white/5 border-b border-white/5">
+            <TableRow className="border-0 hover:bg-transparent">
               <TableHead>
                 <button className="flex items-center font-semibold">
                   Name <ArrowUpDown size={14} className="ml-1 text-muted-foreground" />
@@ -74,12 +90,12 @@ const CustomerTable = () => {
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {dummyCustomers.map((customer) => (
-              <TableRow key={customer.id} className="cursor-pointer hover:bg-muted/50">
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+          <TableBody >
+            {displayedCustomers.map((customer) => (
+              <TableRow key={customer.id} className="cursor-pointer border-b border-white/5 transition-all hover:bg-white/5 data-[state=selected]:bg-white/5 group" onClick={() => setModalMode("view")}>
+                <TableCell className="font-medium py-4" >
+                  <div className="flex items-center gap-3" >
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary text-sm font-bold shrink-0 shadow-inner ring-1 ring-primary/20 group-hover:scale-105 transition-transform">
                       {customer.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
                     </div>
                     {customer.name}
@@ -91,24 +107,35 @@ const CustomerTable = () => {
                 <TableCell>
                   <Badge
                     variant="outline"
-                    className={cn("text-xs", statusColors[customer.status])}
+                    className={cn("px-2.5 py-0.5 rounded-full text-xs font-semibold ring-1 ring-inset border-0 shadow-sm backdrop-blur-sm", statusColors[customer.status])}
                   >
                     {customer.status}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground">{customer.lastContactDate}</TableCell>
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Button variant="ghost" size="icon">
-                      <Pencil size={15} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 size={15} />
-                    </Button>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8 p-0 border-0 bg-transparent cursor-pointer">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setModalMode("view")}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          <span>Show</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setModalMode("edit")}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          <span>Edit</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => setModalMode("delete")} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          <span>Delete</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </TableCell>
               </TableRow>
@@ -116,30 +143,9 @@ const CustomerTable = () => {
           </TableBody>
         </Table>
       </div>
-
-
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <span>Rows per page:</span>
-          {[10, 25, 50].map(size => (
-            <button
-              key={size}
-              className="px-2 py-1 rounded text-xs border hover:bg-muted"
-            >
-              {size}
-            </button>
-          ))}
-        </div>
-        <span>Showing 1–5 of 5</span>
-        <div className="flex items-center gap-1">
-          <Button variant="outline" size="sm" disabled>«</Button>
-          <Button variant="outline" size="sm" disabled>‹</Button>
-          <Button variant="default" size="sm">1</Button>
-          <Button variant="outline" size="sm" disabled>›</Button>
-          <Button variant="outline" size="sm" disabled>»</Button>
-        </div>
-      </div>
       <FilterPanel open={panelOpen} onClose={() => setPanelOpen(false)} />
+      <CustomerModal open={!!modalMode} mode={modalMode || "view"} onClose={() => setModalMode(null)} />
+      <AddCustomerForm open={isAddFormOpen} onClose={() => setIsAddFormOpen(false)} />
     </div>
   );
 }
