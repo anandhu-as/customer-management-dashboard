@@ -1,4 +1,6 @@
-export const dummyCustomers = [
+import { Customer } from "@/app/types";
+
+export const dummyCustomers:Customer[] = [
   { id: "1", name: "Alice Green", email: "alice@example.com", phone: "+1 (874) 748-8877", company: "PayPal", status: "Active", lastContactDate: "2024-01-12" },
   { id: "2", name: "Bob Ross", email: "bob@example.com", phone: "+1 (874) 865-2469", company: "Netflix", status: "Inactive", lastContactDate: "2024-02-03" },
   { id: "3", name: "Charlie Davis", email: "charlie@example.com", phone: "+1 (873) 844-9576", company: "Nike", status: "Prospect", lastContactDate: "2023-11-20" },
