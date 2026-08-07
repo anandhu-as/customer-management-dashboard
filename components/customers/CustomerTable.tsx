@@ -14,14 +14,12 @@ import { useState } from "react";
 import CustomerModal from "./CustomerModel";
 import AddCustomerForm from "./addCustomerForm";
 import { useGetCustomers } from "@/app/hooks/useCustomers";
-import { Customer, FilterCriteria } from "@/app/types"; 
-
+import { Customer } from "@/app/types";
+import FilterPanel, { FilterCriteria } from "../filters/FilterPanel";
 
 import CustomerTableToolbar from "./CustomerTableToolbar";
-
-import CustomerTablePagination from "./CustomerTablePagination";
 import CustomerTableRow from "./CustomerTableRow";
-import FilterPanel from "../filters/FilterPanel";
+import CustomerTablePagination from "./CustomerTablePagination";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -34,7 +32,7 @@ const CustomerTable = ({ limit, hideFilters, initialCustomers }: { limit?: numbe
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilters, setActiveFilters] = useState<FilterCriteria | null>(null);
 
-
+  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data: customers = [], isLoading, isError } = useGetCustomers(initialCustomers);
@@ -42,21 +40,21 @@ const CustomerTable = ({ limit, hideFilters, initialCustomers }: { limit?: numbe
   const companies = Array.from(new Set(customers.map(c => c.company))).filter(Boolean);
 
   const filteredCustomers = customers.filter(customer => {
-    
-    const matchesSearch = 
+    // 1. Search Query
+    const matchesSearch =
       customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       customer.company.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     if (!matchesSearch) return false;
 
-  
+    // 2. Advanced Filters
     if (activeFilters) {
       if (activeFilters.statuses.length > 0 && !activeFilters.statuses.includes(customer.status)) return false;
       if (activeFilters.companies.length > 0 && !activeFilters.companies.includes(customer.company)) return false;
       if (activeFilters.phone && !customer.phone.includes(activeFilters.phone)) return false;
       if (activeFilters.email && !customer.email.toLowerCase().includes(activeFilters.email.toLowerCase())) return false;
-      
+
       if (activeFilters.dateFrom && customer.lastContactDate) {
         if (new Date(customer.lastContactDate) < new Date(activeFilters.dateFrom)) return false;
       }
@@ -68,32 +66,33 @@ const CustomerTable = ({ limit, hideFilters, initialCustomers }: { limit?: numbe
     return true;
   });
 
+  //Reset page when filters change
   const handleApplyFilters = (filters: FilterCriteria) => {
     setActiveFilters(filters);
     setCurrentPage(1);
   };
-  
+
   const handleSearchQueryChange = (query: string) => {
     setSearchQuery(query);
     setCurrentPage(1);
   };
 
-  const activeFilterCount = activeFilters ? 
+  const activeFilterCount = activeFilters ?
     (activeFilters.statuses.length > 0 ? 1 : 0) +
     (activeFilters.companies.length > 0 ? 1 : 0) +
     (activeFilters.phone ? 1 : 0) +
     (activeFilters.email ? 1 : 0) +
     (activeFilters.dateFrom || activeFilters.dateTo ? 1 : 0) : 0;
 
-//paginationn
+  // Pagination logic
   const totalItems = filteredCustomers.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
-  
-  
-  const displayedCustomers = limit 
-    ? filteredCustomers.slice(0, limit) 
+
+  // If limit is provided, use limit instead of pagination (e.g. for dashboard widget)
+  const displayedCustomers = limit
+    ? filteredCustomers.slice(0, limit)
     : filteredCustomers.slice(startIndex, endIndex);
 
   const handleOpenModal = (mode: "view" | "edit" | "delete", customer: Customer) => {
@@ -110,7 +109,7 @@ const CustomerTable = ({ limit, hideFilters, initialCustomers }: { limit?: numbe
           activeFilterCount={activeFilterCount}
           onOpenFilterPanel={() => setPanelOpen(true)}
           onAddCustomer={() => setIsAddFormOpen(true)}
-          displayedCustomers={filteredCustomers} 
+          displayedCustomers={filteredCustomers} // Export all matched, not just paginated
         />
       )}
 
@@ -190,8 +189,8 @@ const CustomerTable = ({ limit, hideFilters, initialCustomers }: { limit?: numbe
       )}
 
       <FilterPanel
-        open={panelOpen} 
-        onClose={() => setPanelOpen(false)} 
+        open={panelOpen}
+        onClose={() => setPanelOpen(false)}
         companies={companies}
         initialFilters={activeFilters || undefined}
         onApply={handleApplyFilters}
