@@ -14,8 +14,8 @@ import { useState } from "react";
 import CustomerModal from "./CustomerModel";
 import AddCustomerForm from "./addCustomerForm";
 import { useGetCustomers } from "@/app/hooks/useCustomers";
-import { Customer } from "@/app/types";
-import FilterPanel, { FilterCriteria } from "../filters/FilterPanel";
+import { Customer, FilterCriteria } from "@/app/types";
+import FilterPanel from "../filters/FilterPanel";
 
 import CustomerTableToolbar from "./CustomerTableToolbar";
 import CustomerTableRow from "./CustomerTableRow";
