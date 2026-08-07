@@ -9,14 +9,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { CustomerStatus } from "@/app/types";
-import { CustomerFormData } from "@/app/schemas/customer.schema";
+import { CustomerFormFieldsProps, CustomerStatus } from "@/app/types";
 
-interface CustomerFormFieldsProps {
-    formData: CustomerFormData;
-    onChange: (data: CustomerFormData) => void;
-    errors?: Record<string, string>;
-}
 
 export const CustomerFormFields = ({
     formData,

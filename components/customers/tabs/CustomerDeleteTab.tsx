@@ -5,7 +5,7 @@ interface CustomerDeleteTabProps {
   customer: Customer;
 }
 
-export function CustomerDeleteTab({ customer }: CustomerDeleteTabProps) {
+const CustomerDeleteTab=({ customer }: CustomerDeleteTabProps)=> {
   return (
     <div className="space-y-4 animate-in fade-in-50 pt-4">
       <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex gap-3">
@@ -26,3 +26,4 @@ export function CustomerDeleteTab({ customer }: CustomerDeleteTabProps) {
     </div>
   );
 }
+export default CustomerDeleteTab

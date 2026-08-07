@@ -14,22 +14,17 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-import { Customer } from "@/app/types";
+import { Customer, CustomerModalProps } from "@/app/types";
 import { statusColors } from "@/app/constants/customer";
 import { cn } from "@/lib/utils";
-import { CustomerViewTab } from "./tabs/CustomerViewTab";
-import { CustomerEditTab } from "./tabs/CustomerEditTab";
-import { CustomerDeleteTab } from "./tabs/CustomerDeleteTab";
+
 import { useUpdateCustomer, useDeleteCustomer } from "@/app/hooks/useCustomers";
+import CustomerViewTab from "./tabs/CustomerViewTab";
+import CustomerEditTab from "./tabs/CustomerEditTab";
+import CustomerDeleteTab from "./tabs/CustomerDeleteTab";
 
 
 
-interface CustomerModalProps {
-  open: boolean;
-  mode?: "view" | "edit" | "delete";
-  customer: Customer | null;
-  onClose: () => void;
-}
 
 export default function CustomerModal({
   open,

@@ -10,17 +10,13 @@ import {
 import { MoreHorizontal, Eye, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { statusColors } from "@/app/constants/customer";
-import { Customer } from "@/app/types";
+import { Customer, CustomerTableRowProps } from "@/app/types";
 
-interface CustomerTableRowProps {
-  customer: Customer;
-  onOpenModal: (mode: "view" | "edit" | "delete", customer: Customer) => void;
-}
 
-export default function CustomerTableRow({
+const CustomerTableRow=({
   customer,
   onOpenModal,
-}: CustomerTableRowProps) {
+}: CustomerTableRowProps)=> {
   return (
     <TableRow
       className="cursor-pointer border-b border-white/5 transition-all hover:bg-white/5 data-[state=selected]:bg-white/5 group"
@@ -80,3 +76,4 @@ export default function CustomerTableRow({
     </TableRow>
   );
 }
+export default CustomerTableRow

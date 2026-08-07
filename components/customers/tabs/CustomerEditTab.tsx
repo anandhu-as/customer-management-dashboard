@@ -9,14 +9,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Customer, CustomerStatus } from "@/app/types";
+import { Customer, CustomerEditTabProps, CustomerStatus } from "@/app/types";
 
-interface CustomerEditTabProps {
-    customer: Customer;
-    onSubmit: (formData: any) => void;
-}
 
-export function CustomerEditTab({ customer, onSubmit }: CustomerEditTabProps) {
+
+const  CustomerEditTab=({ customer, onSubmit }: CustomerEditTabProps)=> {
     const [formData, setFormData] = useState({
         name: customer.name || "",
         email: customer.email || "",
@@ -139,3 +136,4 @@ export function CustomerEditTab({ customer, onSubmit }: CustomerEditTabProps) {
         </form>
     );
 }
+export default CustomerEditTab

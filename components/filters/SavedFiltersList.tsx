@@ -17,12 +17,13 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { FilterCriteria } from "./FilterPanel";
+
 import React from "react";
+import { FilterCriteria } from "@/app/types";
 
 export type SavedFilter = { id: string; name: string; criteria: FilterCriteria };
 
-function SortableFilterItem({
+const SortableFilterItem=({
   filter,
   applySavedFilter,
   deleteSavedFilter,
@@ -30,7 +31,7 @@ function SortableFilterItem({
   filter: SavedFilter;
   applySavedFilter: (criteria: FilterCriteria) => void;
   deleteSavedFilter: (id: string, e: React.MouseEvent) => void;
-}) {
+}) =>{
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: filter.id });
 
@@ -137,3 +138,4 @@ export function SavedFiltersList({
     </div>
   );
 }
+export default SavedFiltersList

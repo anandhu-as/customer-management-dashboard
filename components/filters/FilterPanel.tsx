@@ -8,23 +8,18 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { X } from "lucide-react";
-import { StatusFilter } from "./StatusFilter";
-import { CompanyFilter } from "./CompanyFilter";
-import { DateRangeFilter } from "./DateRangeFilter";
-import { TextFilter } from "./TextFilter";
+
+
+
 import { SaveFilterForm } from "./SaveFilterForm";
 import { SavedFiltersList, SavedFilter } from "./SavedFiltersList";
+import { FilterCriteria } from "@/app/types";
+import CompanyFilter from "./CompanyFilter";
+import DateRangeFilter from "./DateRangeFilter";
+import StatusFilter from "./StatusFilter";
+import TextFilter from "./TextFilter";
 
-export type FilterCriteria = {
-  statuses: string[];
-  companies: string[];
-  dateFrom: string;
-  dateTo: string;
-  phone: string;
-  email: string;
-};
-
-export default function FilterPanel({
+const FilterPanel=({
   open,
   onClose,
   companies = [],
@@ -36,7 +31,7 @@ export default function FilterPanel({
   companies?: string[];
   initialFilters?: FilterCriteria;
   onApply?: (filters: FilterCriteria) => void;
-}) {
+})=> {
   const [statuses, setStatuses] = useState<string[]>([]);
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
   const [dateFrom, setDateFrom] = useState("");
@@ -191,3 +186,4 @@ export default function FilterPanel({
     </Sheet>
   );
 }
+export default FilterPanel

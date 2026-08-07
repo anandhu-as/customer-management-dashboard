@@ -8,7 +8,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
-export function CompanyFilter({
+ const CompanyFilter=({
   companies,
   selectedCompanies,
   toggleCompany,
@@ -18,7 +18,7 @@ export function CompanyFilter({
   selectedCompanies: string[];
   toggleCompany: (company: string) => void;
   onClear: () => void;
-}) {
+}) =>{
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -50,3 +50,4 @@ export function CompanyFilter({
     </div>
   );
 }
+export default CompanyFilter

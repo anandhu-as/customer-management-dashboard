@@ -2,7 +2,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 const STATUSES = ["Active", "Inactive", "Prospect", "Archive"];
 
-export function StatusFilter({
+const StatusFilter=({
   statuses,
   toggleStatus,
   onClear,
@@ -10,7 +10,7 @@ export function StatusFilter({
   statuses: string[];
   toggleStatus: (status: string) => void;
   onClear: () => void;
-}) {
+}) =>{
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -39,3 +39,4 @@ export function StatusFilter({
     </div>
   );
 }
+export default StatusFilter

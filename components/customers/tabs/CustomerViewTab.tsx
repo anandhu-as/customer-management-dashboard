@@ -2,7 +2,7 @@ import { Mail, Phone, Building2, Calendar, FileText } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Customer, CustomerViewTabProps } from "@/app/types";
 
-export function CustomerViewTab({ customer }: CustomerViewTabProps) {
+const CustomerViewTab=({ customer }: CustomerViewTabProps) =>{
   return (
     <div className="space-y-6 animate-in fade-in-50">
       <div className="space-y-3">
@@ -41,3 +41,4 @@ export function CustomerViewTab({ customer }: CustomerViewTabProps) {
     </div>
   );
 }
+export default CustomerViewTab

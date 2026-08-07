@@ -1,14 +1,8 @@
+import { CustomerTablePaginationProps } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-interface CustomerTablePaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  totalItems: number;
-  startIndex: number;
-  endIndex: number;
-}
+
 
 export default function CustomerTablePagination({
   currentPage,

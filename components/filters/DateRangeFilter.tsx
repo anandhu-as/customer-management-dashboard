@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 
-export function DateRangeFilter({
+const DateRangeFilter=({
   dateFrom,
   setDateFrom,
   dateTo,
@@ -10,7 +10,7 @@ export function DateRangeFilter({
   setDateFrom: (val: string) => void;
   dateTo: string;
   setDateTo: (val: string) => void;
-}) {
+}) =>{
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold">Date Range (Last Contact)</h3>
@@ -27,3 +27,4 @@ export function DateRangeFilter({
     </div>
   );
 }
+export default DateRangeFilter

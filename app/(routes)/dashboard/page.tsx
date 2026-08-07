@@ -1,6 +1,6 @@
 import { fetchCustomers } from "@/lib/api";
 
-export default async function Dashboard() {
+const Dashboard = async () => {
   const customers = await fetchCustomers();
 
   const stats = [
@@ -55,3 +55,4 @@ export default async function Dashboard() {
     </div>
   );
 }
+export default Dashboard

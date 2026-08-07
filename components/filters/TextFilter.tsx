@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 
-export function TextFilter({
+const TextFilter = ({
   title,
   placeholder,
   value,
@@ -10,7 +10,7 @@ export function TextFilter({
   placeholder: string;
   value: string;
   onChange: (val: string) => void;
-}) {
+}) => {
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold">{title}</h3>
@@ -18,3 +18,5 @@ export function TextFilter({
     </div>
   );
 }
+
+export default TextFilter

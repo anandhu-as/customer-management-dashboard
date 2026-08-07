@@ -5,26 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Download, Filter } from "lucide-react";
-import { Customer } from "@/app/types";
+import { Customer, CustomerTableToolbarProps } from "@/app/types";
 
-interface CustomerTableToolbarProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  activeFilterCount: number;
-  onOpenFilterPanel: () => void;
-  onAddCustomer: () => void;
-  displayedCustomers: Customer[];
-}
 
-export default function CustomerTableToolbar({
+const CustomerTableToolbar=({
   searchQuery,
   setSearchQuery,
   activeFilterCount,
   onOpenFilterPanel,
   onAddCustomer,
   displayedCustomers,
-}: CustomerTableToolbarProps) {
-  
+}: CustomerTableToolbarProps)=> {
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -38,11 +30,11 @@ export default function CustomerTableToolbar({
 
   const handleExportCSV = () => {
     if (displayedCustomers.length === 0) return;
-    
+
     const headers = ["Name", "Email", "Phone", "Company", "Status", "Last Contact"];
     const csvContent = [
       headers.join(","),
-      ...displayedCustomers.map(c => 
+      ...displayedCustomers.map(c =>
         `"${c.name}","${c.email}","${c.phone}","${c.company}","${c.status}","${c.lastContactDate || ""}"`
       )
     ].join("\n");
@@ -93,3 +85,4 @@ export default function CustomerTableToolbar({
     </>
   );
 }
+export default CustomerTableToolbar
